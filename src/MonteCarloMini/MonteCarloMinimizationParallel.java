@@ -2,8 +2,11 @@ package MonteCarloMini;
 
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
 
-public class MonteCarloMinimizationParallel {
+// RecursiveAction if no return
+// RecursiveTask if it returns something
+public class MonteCarloMinimizationParallel extends RecursiveAction{
     static final boolean DEBUG=true;
 	
 	static long startTime = 0;
@@ -62,6 +65,8 @@ public class MonteCarloMinimizationParallel {
     		//terrain.print_heights();
     	}
     	
+		// ONLY PARALLELISE CODE FROM TIMER ONWARDS
+
     	//start timer
     	tick();
     	
@@ -103,4 +108,9 @@ public class MonteCarloMinimizationParallel {
 				
     	
     }
+	@Override
+	protected void compute() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'compute'");
+	}
 }
