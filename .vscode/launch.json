@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "type": "java",
             "name": "Current File",
@@ -15,6 +16,18 @@
             "name": "MonteCarloMinimization",
             "request": "launch",
             "mainClass": "MonteCarloMini.MonteCarloMinimization",
+            "projectName": "ParallelAssignment2023",
+            "args": ["20", "20", "0", "10", "0", "10", "0.5"],
+            //"args": ["2000", "2000", "0", "200", "0", "200", "0.5"],
+            "runtimeArgs": [
+                "--max-old-space-size=8192"
+            ]
+        },
+        {
+            "type": "java",
+            "name": "MonteCarloMinimizationParallel",
+            "request": "launch",
+            "mainClass": "MonteCarloMini.MonteCarloMinimizationParallel",
             "projectName": "ParallelAssignment2023",
             "args": ["20", "20", "0", "10", "0", "10", "0.5"],
             //"args": ["2000", "2000", "0", "200", "0", "200", "0.5"],
