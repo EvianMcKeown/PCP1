@@ -1,16 +1,10 @@
 package MonteCarloMini;
-/* Serial  program to use Monte Carlo method to 
- * locate a minimum in a function
- * This is the reference sequential version (Do not modify this code)
- * Michelle Kuttel 2023, University of Cape Town
- * Adapted from "Hill Climbing with Montecarlo"
- * EduHPC'22 Peachy Assignment" 
- * developed by Arturo Gonzalez Escribano  (Universidad de Valladolid 2021/2022)
- */
-import java.util.Random;
 
-class MonteCarloMinimization{
-	static final boolean DEBUG=true;
+import java.util.Random;
+import java.util.concurrent.ForkJoinPool;
+
+public class MonteCarloMinimizationPar {
+    static final boolean DEBUG=true;
 	
 	static long startTime = 0;
 	static long endTime = 0;

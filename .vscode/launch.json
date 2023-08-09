@@ -16,7 +16,11 @@
             "request": "launch",
             "mainClass": "MonteCarloMini.MonteCarloMinimization",
             "projectName": "ParallelAssignment2023",
-            "args": ["20", "20", "5", "10", "5", "10", "12"]
+            "args": ["20", "20", "0", "10", "0", "10", "0.5"],
+            //"args": ["2000", "2000", "0", "200", "0", "200", "0.5"],
+            "runtimeArgs": [
+                "--max-old-space-size=8192"
+            ]
         }
     ]
 }
