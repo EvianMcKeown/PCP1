@@ -15,12 +15,27 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 	Search[] searches;
 	int num_searches;
 
-	MonteCarloMinimizationParallel(int min, int local_min, int finder, Search[] searches) {
+	int rows, columns;
+	double xmin, xmax, ymin, ymax;
+	TerrainArea terrain;
+	double searches_density;
+
+	MonteCarloMinimizationParallel(int min, int local_min, int finder, Search[] searches, int rows, int columns,
+			double xmin, double xmax, double ymin, double ymax, TerrainArea terrain, double searches_density) {
 		this.min = min;
 		this.local_min = local_min;
 		this.finder = finder;
 		this.searches = searches;
 		this.num_searches = searches.length;
+
+		this.rows = rows;
+		this.columns = columns;
+		this.xmin = xmin;
+		this.xmax = xmax;
+		this.ymin = ymin;
+		this.ymax = ymax;
+		this.terrain = terrain;
+		this.searches_density = searches_density;
 	}
 
 	static long startTime = 0;
@@ -44,7 +59,7 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 									// than 1!
 
 		int num_searches; // Number of searches
-		 // Array of searches
+		// Array of searches
 		Random rand = new Random(); // the random number generator
 
 		if (args.length != 7) {
@@ -92,20 +107,23 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 		int finder = -1;
 
 		/*
-		for (int i = 0; i < num_searches; i++) {
-			local_min = searches[i].find_valleys();
-			if ((!searches[i].isStopped()) && (local_min < min)) { // don't look at those who stopped because hit
-																	// exisiting path
-				min = local_min;
-				finder = i; // keep track of who found it
-			}
-			if (DEBUG)
-				System.out.println("Search " + searches[i].getID() + " finished at  " + local_min + " in "
-						+ searches[i].getSteps());
-		}
-		*/
+		 * for (int i = 0; i < num_searches; i++) {
+		 * local_min = searches[i].find_valleys();
+		 * if ((!searches[i].isStopped()) && (local_min < min)) { // don't look at those
+		 * who stopped because hit
+		 * // exisiting path
+		 * min = local_min;
+		 * finder = i; // keep track of who found it
+		 * }
+		 * if (DEBUG)
+		 * System.out.println("Search " + searches[i].getID() + " finished at  " +
+		 * local_min + " in "
+		 * + searches[i].getSteps());
+		 * }
+		 */
 
-		MonteCarloMinimizationParallel doWork = new MonteCarloMinimizationParallel(min, local_min, finder, searches_main);
+		MonteCarloMinimizationParallel doWork = new MonteCarloMinimizationParallel(min, local_min, finder,
+				searches_main, rows, columns, xmin, xmax, ymin, ymax, terrain, searches_density);
 		ForkJoinPool pool = ForkJoinPool.commonPool();
 		pool.invoke(doWork);
 
@@ -132,7 +150,8 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 
 		/* Results */
 		System.out.printf("Global minimum: %d at x=%.1f y=%.1f\n\n", min,
-				terrain.getXcoord(searches_main[finder].getPos_row()), terrain.getYcoord(searches_main[finder].getPos_col()));
+				terrain.getXcoord(searches_main[finder].getPos_row()),
+				terrain.getYcoord(searches_main[finder].getPos_col()));
 
 	}
 
