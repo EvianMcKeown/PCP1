@@ -13,12 +13,14 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 	int local_min = Integer.MAX_VALUE;
 	int finder = -1;
 	Search[] searches;
+	int num_searches;
 
 	MonteCarloMinimizationParallel(int min, int local_min, int finder, Search[] searches) {
 		this.min = min;
 		this.local_min = local_min;
 		this.finder = finder;
 		this.searches = searches;
+		this.num_searches = searches.length;
 	}
 
 	static long startTime = 0;
@@ -104,6 +106,9 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 		*/
 
 		MonteCarloMinimizationParallel doWork = new MonteCarloMinimizationParallel(min, local_min, finder, searches_main);
+		ForkJoinPool pool = ForkJoinPool.commonPool();
+		pool.invoke(doWork);
+
 		// end timer
 		tock();
 
@@ -127,7 +132,7 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 
 		/* Results */
 		System.out.printf("Global minimum: %d at x=%.1f y=%.1f\n\n", min,
-				terrain.getXcoord(searches[finder].getPos_row()), terrain.getYcoord(searches[finder].getPos_col()));
+				terrain.getXcoord(searches_main[finder].getPos_row()), terrain.getYcoord(searches_main[finder].getPos_col()));
 
 	}
 
