@@ -12,11 +12,13 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 	int min = Integer.MAX_VALUE;
 	int local_min = Integer.MAX_VALUE;
 	int finder = -1;
+	Search[] searches;
 
-	MonteCarloMinimizationParallel(int min, int local_min, int finder) {
+	MonteCarloMinimizationParallel(int min, int local_min, int finder, Search[] searches) {
 		this.min = min;
 		this.local_min = local_min;
 		this.finder = finder;
+		this.searches = searches;
 	}
 
 	static long startTime = 0;
@@ -40,7 +42,7 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 									// than 1!
 
 		int num_searches; // Number of searches
-		Search[] searches; // Array of searches
+		 // Array of searches
 		Random rand = new Random(); // the random number generator
 
 		if (args.length != 7) {
@@ -67,9 +69,9 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 		// Initialize
 		terrain = new TerrainArea(rows, columns, xmin, xmax, ymin, ymax);
 		num_searches = (int) (rows * columns * searches_density);
-		searches = new Search[num_searches];
+		Search[] searches_main = new Search[num_searches];
 		for (int i = 0; i < num_searches; i++)
-			searches[i] = new Search(i + 1, rand.nextInt(rows), rand.nextInt(columns), terrain);
+			searches_main[i] = new Search(i + 1, rand.nextInt(rows), rand.nextInt(columns), terrain);
 
 		if (DEBUG) {
 			/* Print initial values */
@@ -101,6 +103,7 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 		}
 		*/
 
+		MonteCarloMinimizationParallel doWork = new MonteCarloMinimizationParallel(min, local_min, finder, searches_main);
 		// end timer
 		tock();
 
