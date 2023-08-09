@@ -13,6 +13,12 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 	int local_min = Integer.MAX_VALUE;
 	int finder = -1;
 
+	MonteCarloMinimizationParallel(int min, int local_min, int finder) {
+		this.min = min;
+		this.local_min = local_min;
+		this.finder = finder;
+	}
+
 	static long startTime = 0;
 	static long endTime = 0;
 
@@ -80,6 +86,8 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 		int min = Integer.MAX_VALUE;
 		int local_min = Integer.MAX_VALUE;
 		int finder = -1;
+
+		/*
 		for (int i = 0; i < num_searches; i++) {
 			local_min = searches[i].find_valleys();
 			if ((!searches[i].isStopped()) && (local_min < min)) { // don't look at those who stopped because hit
@@ -91,6 +99,8 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 				System.out.println("Search " + searches[i].getID() + " finished at  " + local_min + " in "
 						+ searches[i].getSteps());
 		}
+		*/
+
 		// end timer
 		tock();
 
@@ -121,7 +131,7 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 	@Override
 	protected void compute() {
 		// Assuming FJP.invoke would call compute for all the threads
-		
+
 		for (int i = 0; i < num_searches; i++) {
 			local_min = searches[i].find_valleys();
 			if ((!searches[i].isStopped()) && (local_min < min)) { // don't look at those who stopped because hit
