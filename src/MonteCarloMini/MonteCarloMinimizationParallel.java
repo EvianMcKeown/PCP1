@@ -3,10 +3,11 @@ package MonteCarloMini;
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.RecursiveTask;
 
 // RecursiveAction if no return
 // RecursiveTask if it returns something
-public class MonteCarloMinimizationParallel extends RecursiveAction {
+public class MonteCarloMinimizationParallel extends RecursiveTask<Integer> {
 	static final boolean DEBUG = true;
 
 	int min = Integer.MAX_VALUE;
@@ -156,8 +157,8 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 	}
 
 	@Override
-	protected void compute() {
-		// Assuming FJP.invoke would call compute for all the threads
+	protected Integer compute() {
+		// return the min ?
 
 		for (int i = 0; i < num_searches; i++) {
 			local_min = searches[i].find_valleys();
@@ -171,5 +172,8 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 						+ searches[i].getSteps());
 		}
 		// end timer
+
+		return min;
+		// or localmin?
 	}
 }
