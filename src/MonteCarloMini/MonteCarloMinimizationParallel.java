@@ -149,9 +149,9 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 		System.out.printf("Grid points evaluated: %d  (%2.0f%s)\n", tmp, (tmp / (rows * columns * 1.0)) * 100.0, "%");
 
 		/* Results */
-		System.out.printf("Global minimum: %d at x=%.1f y=%.1f\n\n", min,
-				terrain.getXcoord(searches_main[finder].getPos_row()),
-				terrain.getYcoord(searches_main[finder].getPos_col()));
+		System.out.printf("Global minimum: %d at x=%.1f y=%.1f\n\n", doWork.min,
+				terrain.getXcoord(searches_main[doWork.finder].getPos_row()),
+				terrain.getYcoord(searches_main[doWork.finder].getPos_col()));
 
 	}
 
