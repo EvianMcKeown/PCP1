@@ -7,8 +7,8 @@ import java.util.concurrent.RecursiveTask;
 
 // RecursiveAction if no return
 // RecursiveTask if it returns something
-public class MonteCarloMinimizationParallel extends RecursiveTask<Integer> {
-	static final boolean DEBUG = true;
+public class MonteCarloMinimizationParallel extends RecursiveAction {
+	static final boolean DEBUG = false;
 
 	int min = Integer.MAX_VALUE;
 	int local_min = Integer.MAX_VALUE;
@@ -21,8 +21,12 @@ public class MonteCarloMinimizationParallel extends RecursiveTask<Integer> {
 	TerrainArea terrain;
 	double searches_density;
 
+	int searchfrom;
+	int searchto;
+
 	MonteCarloMinimizationParallel(int min, int local_min, int finder, Search[] searches, int rows, int columns,
-			double xmin, double xmax, double ymin, double ymax, TerrainArea terrain, double searches_density) {
+			double xmin, double xmax, double ymin, double ymax, TerrainArea terrain, double searches_density,
+			int searchfrom, int searchto) {
 		this.min = min;
 		this.local_min = local_min;
 		this.finder = finder;
@@ -37,6 +41,21 @@ public class MonteCarloMinimizationParallel extends RecursiveTask<Integer> {
 		this.ymax = ymax;
 		this.terrain = terrain;
 		this.searches_density = searches_density;
+
+		this.searchfrom = searchfrom;
+		this.searchto = searchto;
+	}
+
+	MonteCarloMinimizationParallel(int min, int local_min, int finder, Search[] searches, TerrainArea terrain,
+			int searchfrom, int searchto) {
+		this.min = min;
+		this.local_min = local_min;
+		this.finder = finder;
+		this.searches = searches;
+		this.num_searches = searches.length;
+
+		this.searchfrom = searchfrom;
+		this.searchto = searchto;
 	}
 
 	static long startTime = 0;
@@ -124,30 +143,32 @@ public class MonteCarloMinimizationParallel extends RecursiveTask<Integer> {
 		 */
 
 		MonteCarloMinimizationParallel doWork = new MonteCarloMinimizationParallel(min, local_min, finder,
-				searches_main, rows, columns, xmin, xmax, ymin, ymax, terrain, searches_density);
-		ForkJoinPool pool = ForkJoinPool.commonPool();
-		pool.invoke(doWork);
+				searches_main, rows, columns, xmin, xmax, ymin, ymax, terrain, searches_density, 0,
+				searches_main.length);
+		// WIP
+		final ForkJoinPool fjPool = new ForkJoinPool();
+		fjPool.invoke(doWork);
 
 		// end timer
 		tock();
 
 		if (DEBUG) {
 			/* print final state */
-			terrain.print_heights();
-			terrain.print_visited();
+			doWork.terrain.print_heights();
+			doWork.terrain.print_visited();
 		}
 
 		System.out.printf("Run parameters\n");
-		System.out.printf("\t Rows: %d, Columns: %d\n", rows, columns);
-		System.out.printf("\t x: [%f, %f], y: [%f, %f]\n", xmin, xmax, ymin, ymax);
-		System.out.printf("\t Search density: %f (%d searches)\n", searches_density, num_searches);
+		System.out.printf("\t Rows: %d, Columns: %d\n", doWork.rows, doWork.columns);
+		System.out.printf("\t x: [%f, %f], y: [%f, %f]\n", doWork.xmin, doWork.xmax, doWork.ymin, doWork.ymax);
+		System.out.printf("\t Search density: %f (%d searches)\n", doWork.searches_density, doWork.num_searches);
 
 		/* Total computation time */
 		System.out.printf("Time: %d ms\n", endTime - startTime);
-		int tmp = terrain.getGrid_points_visited();
-		System.out.printf("Grid points visited: %d  (%2.0f%s)\n", tmp, (tmp / (rows * columns * 1.0)) * 100.0, "%");
-		tmp = terrain.getGrid_points_evaluated();
-		System.out.printf("Grid points evaluated: %d  (%2.0f%s)\n", tmp, (tmp / (rows * columns * 1.0)) * 100.0, "%");
+		int tmp = doWork.terrain.getGrid_points_visited();
+		System.out.printf("Grid points visited: %d  (%2.0f%s)\n", tmp, (tmp / (doWork.rows * doWork.columns * 1.0)) * 100.0, "%");
+		tmp = doWork.terrain.getGrid_points_evaluated();
+		System.out.printf("Grid points evaluated: %d  (%2.0f%s)\n", tmp, (tmp / (doWork.rows * doWork.columns * 1.0)) * 100.0, "%");
 
 		/* Results */
 		System.out.printf("Global minimum: %d at x=%.1f y=%.1f\n\n", doWork.min,
@@ -157,26 +178,90 @@ public class MonteCarloMinimizationParallel extends RecursiveTask<Integer> {
 	}
 
 	@Override
-	protected Integer compute() {
+	protected void compute() {
 		// return the min ?
 
-		for (int i = 0; i < num_searches; i++) {
-			local_min = searches[i].find_valleys();
-			if ((!searches[i].isStopped()) && (local_min < min)) { // don't look at those who stopped because hit
-																	// exisiting path
-				min = local_min;
-				finder = i; // keep track of who found it
+		/*
+		 * for (int i = 0; i < num_searches; i++) {
+		 * local_min = searches[i].find_valleys();
+		 * if ((!searches[i].isStopped()) && (local_min < min)) { // don't look at those
+		 * who stopped because hit
+		 * // exisiting path
+		 * min = local_min;
+		 * finder = i; // keep track of who found it
+		 * }
+		 * if (DEBUG)
+		 * System.out.println("Search " + searches[i].getID() + " finished at  " +
+		 * local_min + " in "
+		 * + searches[i].getSteps());
+		 * }
+		 */
+
+		// must call constructor to call recursive computes
+		// additionally define 'base case'
+		int sLength = searchto - searchfrom;
+		if (sLength <= 10) {
+			for (int i = searchfrom; i < searchfrom + sLength; i++) {
+				local_min = searches[i].find_valleys();
+				if ((!searches[i].isStopped()) && (local_min < min)) {
+					this.min = local_min;
+					this.finder = i;
+					// ISSUE finder ID is of the shortened searches not the original
+					
+				}
+				if (DEBUG)
+					System.out.println("Search " + searches[i].getID() + " finished at  " + local_min + " in "
+							+ searches[i].getSteps());
 			}
-			if (DEBUG)
-				System.out.println("Search " + searches[i].getID() + " finished at  " + local_min + " in "
-						+ searches[i].getSteps());
+		} else {
+			// calculate new bounds or shorten and pass searches array? (probably slower)
+			int leftFrom = searchfrom;
+			int rightFrom = (int) ((searchfrom + searchto) / 2);
+			int leftTo = (int) ((searchfrom + searchto) / 2);
+			int rightTo = (int) ((searchto));
+
+			/*
+			 * Search[] leftSearches = new Search[Math.round(searches.length / 2)];
+			 * Search[] rightSearches = new Search[searches.length -
+			 * Math.round(searches.length / 2)];
+			 * 
+			 * for (int i = 0; i < leftSearches.length; i++) {
+			 * leftSearches[i] = searches[i];
+			 * }
+			 * for (int i = leftSearches.length; i < rightSearches.length +
+			 * leftSearches.length - 1; i++) {
+			 * rightSearches[i - leftSearches.length] = searches[i];
+			 * }
+			 */
+
+			// MonteCarloMinimizationParallel left = new MonteCarloMinimizationParallel(min,
+			// local_min, finder, searches,
+			// terrain, leftFrom, leftTo);
+			MonteCarloMinimizationParallel left = new MonteCarloMinimizationParallel(min, local_min, finder, searches,
+					rows, columns, xmin, xmax, ymin, ymax, terrain, searches_density, leftFrom, leftTo);
+			//MonteCarloMinimizationParallel right = new MonteCarloMinimizationParallel(min, local_min, finder, searches,
+			//		terrain, rightFrom, rightTo);
+			MonteCarloMinimizationParallel right = new MonteCarloMinimizationParallel(min, local_min, finder, searches,
+					rows, columns, xmin, xmax, ymin, ymax, terrain, searches_density, rightFrom, rightTo);
+			// TODO set bounds above
+			left.fork();
+			right.compute();
+			left.join();
+			// unsure about the min thing
+			this.min = Math.min(left.min, right.min);
+			if (left.min == this.min) {
+				this.finder = left.finder;
+			} else if (right.min == this.min) {
+				this.finder = right.finder;
+			} 
 		}
+
 		// end timer
 
 		// System.out.println(this.min);
 		// System.out.println(min);
 		// System.out.println(local_min);
-		return this.min;
+		// return this.min;
 
 		// or localmin?
 	}
