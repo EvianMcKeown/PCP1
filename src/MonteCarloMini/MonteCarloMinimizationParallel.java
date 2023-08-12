@@ -173,7 +173,11 @@ public class MonteCarloMinimizationParallel extends RecursiveTask<Integer> {
 		}
 		// end timer
 
-		return min;
+		// System.out.println(this.min);
+		// System.out.println(min);
+		// System.out.println(local_min);
+		return this.min;
+
 		// or localmin?
 	}
 }
