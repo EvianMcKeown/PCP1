@@ -200,7 +200,7 @@ public class MonteCarloMinimizationParallel extends RecursiveAction {
 		// must call constructor to call recursive computes
 		// additionally define 'base case'
 		int sLength = searchto - searchfrom;
-		if (sLength <= 10) {
+		if (sLength <= 10000) {
 			for (int i = searchfrom; i < searchfrom + sLength; i++) {
 				local_min = searches[i].find_valleys();
 				if ((!searches[i].isStopped()) && (local_min < min)) {
