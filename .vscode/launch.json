@@ -19,9 +19,6 @@
             "projectName": "ParallelAssignment2023",
             //"args": ["200", "200", "0", "10", "0", "10", "0.05"],
             "args": ["20000", "20000", "0", "20", "0", "20", "0.0005"],
-            "runtimeArgs": [
-                "--max-old-space-size=8192"
-            ]
         },
         {
             "type": "java",
@@ -31,9 +28,6 @@
             "projectName": "ParallelAssignment2023",
             //"args": ["200", "200", "0", "10", "0", "10", "0.05"],
             "args": ["20000", "20000", "0", "20", "0", "20", "0.0005"],
-            "runtimeArgs": [
-                "--max-old-space-size=8192"
-            ]
         }
     ]
 }
